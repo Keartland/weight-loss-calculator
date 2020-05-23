@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Slider } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Slider, Picker } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 class WeightInput extends React.Component {
@@ -11,15 +11,13 @@ class WeightInput extends React.Component {
             padding:5,
             borderWidth:1,
             borderRadius:5,
-            alignItems: "center",
             borderColor: this.props.style.color,
             marginRight:5,
+            width:60,
         },
         mainNumber: {
             fontSize: 25,
             color: this.props.style.color,
-            marginLeft:5,
-            marginRight:5,
         },
     }
 
@@ -53,23 +51,24 @@ class WeightInput extends React.Component {
 }
 class App extends React.Component {
     state = {
-        calsConsumed:3000,
-        LastWeight:200,
-        BodyWeight:199,
-        percentLoss: 1,
+        calsConsumed:0,
+        LastWeight:0,
+        BodyWeight:0,
+        goalLoss: 0,
+        gainLossText: "lose",
     }
     render(){
         return (
             <View style={styles.container}>
-                <View style={{ padding: 50 }}>
+                <View style={{ padding: 25 }}>
                     <Text style={styles.output}>You should eat</Text>
-                    <Text style={styles.calorieOutput}>{Math.round(this.state.calsConsumed + 500*(this.state.LastWeight-this.state.BodyWeight - (this.state.BodyWeight*this.state.percentLoss)/100))} kcals</Text>
-                    <Text style={styles.output}>every day to lose {(this.state.BodyWeight*this.state.percentLoss)/100}lbs in a week</Text>
+                    <Text style={styles.calorieOutput}>{Math.round(this.state.calsConsumed + 500*(this.state.LastWeight-this.state.BodyWeight - (this.state.gainLossText == "lose" ? 1:-1)*this.state.goalLoss))} kcals</Text>
+                    <Text style={styles.output}>every day to {this.state.gainLossText} {(this.state.goalLoss)}lbs in a week</Text>
                 </View>
                 <View style={styles.row}>
                     <View>
                         <Text style={styles.label}>Weight Last Week (lbs)</Text>
-                        <WeightInput style={{color:"white"}} defaultValue={this.state.LastWeight} onChange={(weight) => this.setState({BodyWeight:weight})}></WeightInput>
+                        <WeightInput style={{color:"white"}} defaultValue={this.state.LastWeight} onChange={(weight) => this.setState({LastWeight:weight})}></WeightInput>
                     </View>
                     <View>
                         <Text style={styles.label}>Current Weight (lbs)</Text>
@@ -77,24 +76,31 @@ class App extends React.Component {
                     </View>
                 </View>
                 <View style={[styles.row, {justifyContent: 'center'}]}>
-                    <Text style={styles.label}>I want to lose </Text>
+                    <Text style={styles.label}>I want to</Text>
+                    <Picker
+                        selectedValue={this.state.gainLossText}
+                        style={[styles.label,{width: 95}]}
+                        onValueChange={(itemValue, itemIndex) => this.setState({ gainLossText: itemValue })}>
+                        <Picker.Item label="lose" value="lose" />
+                        <Picker.Item label="gain" value="gain" />
+                    </Picker>
                     <TextInput
                         style={styles.input}
-                        onChangeText={text => this.setState({percentLoss:text})}
-                        defaultValue={this.state.percentLoss.toString()}
+                        onChangeText={text => this.setState({goalLoss:Number(text)})}
+                        defaultValue={this.state.goalLoss.toString()}
                         keyboardType={"numeric"}
                     />
-                    <Text style={styles.label}>% of my weight in a week.</Text>
+                    <Text style={styles.label}>lbs in a week.</Text>
                 </View>
                 <View style={[styles.row, {justifyContent: 'center'}]}>
-                    <Text style={styles.label}>I am eating </Text>
+                    <Text style={styles.label}>I am eat </Text>
                     <TextInput
                         style={styles.input}
                         onChangeText={text => this.setState({calsConsumed:Number(text)})}
                         defaultValue={this.state.calsConsumed.toString()}
                         keyboardType={"numeric"}
                     />
-                    <Text style={styles.label}>kcal a day</Text>
+                    <Text style={styles.label}>kcals a day</Text>
                 </View>
             </View>
         );
@@ -112,6 +118,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: "row",
         justifyContent: 'space-evenly',
+        marginTop:10,
     },
     label: {
         color: "white",
@@ -132,12 +139,12 @@ const styles = StyleSheet.create({
         fontSize:25,
     },
     input: {
-        height: 40,
-        padding:10,
-        color: "white",
-        borderWidth: 1,
-        borderRadius: 10,
-        borderColor: "white",
+        padding:5,
+        borderWidth:1,
+        borderRadius:5,
+        borderColor: 'white',
+        color:'white',
+        width:50,
     },
 });
 
